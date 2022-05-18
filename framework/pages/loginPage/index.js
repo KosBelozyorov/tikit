@@ -1,10 +1,12 @@
-const { expect } = require("@playwright/test");
+const { expect } = require('@playwright/test');
 
 const {
-  // DEV_MAIN_PAGE_URL,
-  // ALL_PRODUCTS_BUTTON,
-  // CLOSE_POP_UP_BUTTON,
-} = require("../../constants");
+  COWORK_URL,
+  LOGIN_FORM_EMAIL,
+  LOGIN_FORM_PASSWORD,
+  LOGIN_FORM_BUTTON,
+  STAFF_CREDENTIALS,
+} = require('../../constants');
 
 class LoginPage {
   /**
@@ -13,6 +15,20 @@ class LoginPage {
 
   constructor(page) {
     this.page = page;
+    this.nameInputField = this.page.locator(LOGIN_FORM_EMAIL);
+    this.passwordInputField = this.page.locator(LOGIN_FORM_PASSWORD);
+    this.loginFormButton = this.page.locator(LOGIN_FORM_BUTTON);
+  }
+
+  async goto() {
+    await this.page.goto(COWORK_URL);
+  }
+
+  async login() {
+    await this.nameInputField.click();
+    await this.nameInputField.fill(STAFF_CREDENTIALS.email);
+    await this.passwordInputField.fill(STAFF_CREDENTIALS.password);
+    await this.loginFormButton.click();
   }
 }
 
