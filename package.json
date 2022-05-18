@@ -1,0 +1,21 @@
+{
+  "name": "tikit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KosBelozyorov/tikit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KosBelozyorov/tikit/issues"
+  },
+  "homepage": "https://github.com/KosBelozyorov/tikit#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.22.1"
+  }
+}
