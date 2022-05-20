@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "allure:generate": "npx allure generate ./allure-results --clean",
+    "allure:open": "npx allure open ./allure-report",
+    "allure:serve": "npx allure serve allure-results --host localhost --port 9999",
+    "report": "npx allure generate ./allure-results --clean && npx allure open ./allure-report",
+    "cpDir": "cp -r ./allure-report/history/ ./allure-results/",
+    "posttest": "npm run allure:generate"
   },
   "repository": {
     "type": "git",

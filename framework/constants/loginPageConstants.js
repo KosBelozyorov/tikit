@@ -12,8 +12,6 @@ const LOGIN_FORM_EMAIL = 'form#doSignIn input[type="email"]';
 const LOGIN_FORM_PASSWORD = 'form#doSignIn input[type="password"]';
 const LOGIN_FORM_BUTTON = 'form#doSignIn button[type="submit"]';
 
-console.log('test');
-
 module.exports = {
   COWORK_URL,
   STAFF_CREDENTIALS,
