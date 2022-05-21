@@ -1,4 +1,4 @@
-# Playwright Test Framework for automation testing Tikit System
+# PW Test Framework for automation testing Tikit
 
 ## SETUP
 
