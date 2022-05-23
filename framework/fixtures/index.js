@@ -1,5 +1,5 @@
 const base = require('@playwright/test');
-const { LoginPage, TicketsPage } = require('../');
+const { LoginPage, TicketsPage } = require('..');
 
 const { expect } = base;
 

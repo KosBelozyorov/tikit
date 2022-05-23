@@ -1,10 +1,10 @@
-const { test, expect } = require('../framework/fixtures');
+const { test } = require('../framework/fixtures');
 
 test.beforeEach(async ({ loginPage }) => {
   await loginPage.goto();
 });
 
-test.describe('Staff tests', () => {
+test.describe.parallel('Staff tests', () => {
   test('Case #01 Login as staff', async ({ loginPage }) => {
     await loginPage.login();
   });

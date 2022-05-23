@@ -1,5 +1,3 @@
-const { expect } = require('@playwright/test');
-
 const {
   COWORK_URL,
   LOGIN_FORM_EMAIL,

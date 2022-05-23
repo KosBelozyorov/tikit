@@ -72,6 +72,7 @@ class TicketsPage {
     await this.addNewTicketButton.click();
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async getElementsAmount(elemLocator, modifier = 0) {
     const result = await elemLocator.count();
 
@@ -79,38 +80,38 @@ class TicketsPage {
   }
 
   async getRandomValue(elemLocator, modifier = 0) {
-    let elementsAmount = await this.getElementsAmount(elemLocator, modifier);
-    let x = Math.floor(Math.random() * elementsAmount + 1);
+    const elementsAmount = await this.getElementsAmount(elemLocator, modifier);
+    const x = Math.floor(Math.random() * elementsAmount + 1);
 
     return x;
   }
 
   async getOptionName(optionsLocator, modifier) {
-    let optionItemId = this.getRandomValue(
+    const optionItemId = this.getRandomValue(
       await optionsLocator,
       await modifier,
     );
-    let optionItemLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await optionItemId})`;
-    let optionName = await this.page.locator(optionItemLocator).textContent();
+    const optionItemLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await optionItemId})`;
+    const optionName = await this.page.locator(optionItemLocator).textContent();
 
     return optionName;
   }
 
   async searchInOptions(fieldLocator, optionsLocator, modifier) {
-    let optionName = await this.getOptionName(await optionsLocator, modifier);
+    const optionName = await this.getOptionName(await optionsLocator, modifier);
     await fieldLocator.type(optionName, { delay: 50 });
 
     return optionName;
   }
 
   async selectOption(fieldLocator, optionsLocator, modifier) {
-    let optionName = await this.searchInOptions(
+    const optionName = await this.searchInOptions(
       fieldLocator,
       optionsLocator,
       modifier,
     );
-    let optionSelectorFromSearchList = `li[role="option"]:has-text('${optionName}')`;
-    let optionNameFromSearchList = this.page
+    const optionSelectorFromSearchList = `li[role="option"]:has-text('${optionName}')`;
+    const optionNameFromSearchList = this.page
       .locator(optionSelectorFromSearchList)
       .first();
 
@@ -119,6 +120,7 @@ class TicketsPage {
   }
 
   async SelectProduct() {
+    await this.newTicketFormProductField.click();
     await this.newTicketFormSearchProductField.click();
     await this.selectOption(
       this.newTicketFormSearchProductField,
@@ -128,6 +130,7 @@ class TicketsPage {
   }
 
   async SelectTopic() {
+    await this.newTicketFormTopicField.click();
     await this.newTicketFormSearchPTopicField.click();
     await this.selectOption(
       this.newTicketFormSearchPTopicField,
@@ -136,6 +139,7 @@ class TicketsPage {
   }
 
   async SelectUser() {
+    await this.newTicketFormAssignedField.click();
     await this.newTicketFormSearchAssignedField.click();
     await this.selectOption(
       this.newTicketFormSearchAssignedField,
@@ -145,26 +149,29 @@ class TicketsPage {
   }
 
   async SelectPriorityOption() {
-    let elementId = this.getRandomValue(this.newTicketFormOptions);
-    let elementLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await elementId})`;
+    await this.newTicketFormPriorityField.click();
+    const elementId = this.getRandomValue(this.newTicketFormOptions);
+    const elementLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await elementId})`;
 
     await this.page.locator(elementLocator).click();
   }
 
   async SelectTypeOption() {
-    let elementId = this.getRandomValue(this.newTicketFormOptions);
-    let elementLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await elementId})`;
+    await this.newTicketFormTypeField.click();
+    const elementId = this.getRandomValue(this.newTicketFormOptions);
+    const elementLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await elementId})`;
 
     await this.page.locator(elementLocator).click();
   }
 
   async FillSubjectField() {
-    const subjectText = 'New ticket ' + Date();
+    const subjectText = `New ticket ${Date()}`;
     await this.newTicketFormSubjectField.click();
     await this.newTicketFormSubjectField.fill(subjectText);
   }
 
   async FillDescriptionField() {
+    await this.newTicketFormDescriptionField.click();
     const descriptionText =
       'Lorem, ipsum dolor sit amet consectetur adipisicing elit. A itaque quisquam optio laboriosam illo? Impedit sed numquam eos optio saepe aut laudantium dolorem voluptatem minus, ducimus animi voluptate magni voluptatum odit quisquam enim earum reiciendis officia similique vitae quibusdam? Molestias rem itaque laboriosam architecto labore voluptas atque, tempora magni eum?';
 
@@ -180,6 +187,7 @@ class TicketsPage {
       ],
       { timeout: 5000 },
     );
+    await this.page.waitForTimeout(5000);
   }
 
   async SaveNewTicket() {
@@ -188,17 +196,11 @@ class TicketsPage {
 
   async fillNewTicketForm() {
     await this.FillSubjectField();
-    await this.newTicketFormProductField.click();
     await this.SelectProduct();
-    await this.newTicketFormTopicField.click();
     await this.SelectTopic();
-    await this.newTicketFormAssignedField.click();
     await this.SelectUser();
-    await this.newTicketFormPriorityField.click();
     await this.SelectPriorityOption();
-    await this.newTicketFormTypeField.click();
     await this.SelectTypeOption();
-    await this.newTicketFormDescriptionField.click();
     await this.FillDescriptionField();
     await this.UploadFiles();
     await this.SaveNewTicket();
