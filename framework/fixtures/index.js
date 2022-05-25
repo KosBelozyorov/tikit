@@ -1,5 +1,5 @@
 const base = require('@playwright/test');
-const { LoginPage, TicketsPage } = require('..');
+const { LoginPage, TicketsPage, TicketPage, NewTicketPage } = require('..');
 
 const { expect } = base;
 
@@ -11,6 +11,14 @@ const test = base.test.extend({
   ticketsPage: async ({ page }, use) => {
     const ticketsPage = new TicketsPage(page);
     await use(ticketsPage);
+  },
+  ticketPage: async ({ page }, use) => {
+    const ticketPage = new TicketPage(page);
+    await use(ticketPage);
+  },
+  newTicketPage: async ({ page }, use) => {
+    const newTicketPage = new NewTicketPage(page);
+    await use(newTicketPage);
   },
 });
 

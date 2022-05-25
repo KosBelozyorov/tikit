@@ -1,9 +1,16 @@
+const { LoginFragment } = require('./fragments/login');
+
+/**
+ * This is a Page Object Model (POM) class for the application's Todo page. It
+ * provides locators and common operations that make writing tests easier.
+ * @see https://playwright.dev/docs/test-pom
+ */
+
 const {
   COWORK_URL,
-  LOGIN_FORM_EMAIL,
-  LOGIN_FORM_PASSWORD,
-  LOGIN_FORM_BUTTON,
   STAFF_CREDENTIALS,
+  OWNER_CREDENTIALS,
+  CONSUMER_CREDENTIALS,
 } = require('../../constants');
 
 class LoginPage {
@@ -13,23 +20,26 @@ class LoginPage {
 
   constructor(page) {
     this.page = page;
-    this.nameInputField = this.page.locator(LOGIN_FORM_EMAIL);
-    this.passwordInputField = this.page.locator(LOGIN_FORM_PASSWORD);
-    this.loginFormButton = this.page.locator(LOGIN_FORM_BUTTON);
+    this.LoginFragment = new LoginFragment(page);
   }
 
   async goto() {
     await this.page.goto(COWORK_URL);
   }
 
-  async login() {
-    await this.nameInputField.click();
-    await this.nameInputField.fill(STAFF_CREDENTIALS.email);
-    await this.passwordInputField.fill(STAFF_CREDENTIALS.password);
-    await Promise.all([
-      this.page.waitForNavigation(/* { url: 'https://test-kb.coworkplace.us/' } */),
-      await this.loginFormButton.click(),
-    ]);
+  async loginAsStaff() {
+    const { email, password } = STAFF_CREDENTIALS;
+    await this.LoginFragment.login(email, password);
+  }
+
+  async loginAsOwner() {
+    const { email, password } = OWNER_CREDENTIALS;
+    await this.LoginFragment.login(email, password);
+  }
+
+  async loginAsConsumer() {
+    const { email, password } = CONSUMER_CREDENTIALS;
+    await this.LoginFragment.login(email, password);
   }
 }
 
