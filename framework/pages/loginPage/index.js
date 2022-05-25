@@ -26,7 +26,10 @@ class LoginPage {
     await this.nameInputField.click();
     await this.nameInputField.fill(STAFF_CREDENTIALS.email);
     await this.passwordInputField.fill(STAFF_CREDENTIALS.password);
-    await this.loginFormButton.click();
+    await Promise.all([
+      this.page.waitForNavigation(/* { url: 'https://test-kb.coworkplace.us/' } */),
+      await this.loginFormButton.click(),
+    ]);
   }
 }
 

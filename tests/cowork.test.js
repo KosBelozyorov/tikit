@@ -15,6 +15,8 @@ test.describe.parallel('Staff tests', () => {
     test.slow();
     await loginPage.login();
     await ticketsPage.openFormAddNewTicket();
+    await ticketsPage.getContactName();
     await ticketsPage.fillNewTicketForm();
+    await ticketsPage.checkCreatedTicketInfo();
   });
 });
