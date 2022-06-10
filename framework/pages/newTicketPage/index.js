@@ -1,4 +1,5 @@
 const { expect } = require('@playwright/test');
+const uid = require('uid2/promises');
 
 const {
   NEW_TICKET_FORM_CONTACT_FIELD,
@@ -81,6 +82,7 @@ class NewTicketPage {
     return result - modifier;
   }
 
+  // TODO: Need to move this function to the Lib
   async getRandomValue(elemLocator, modifier = 0) {
     const elementsAmount = await this.getElementsAmount(elemLocator, modifier);
     const x = Math.floor(Math.random() * elementsAmount + 1);
@@ -93,9 +95,44 @@ class NewTicketPage {
       await this.newTicketFormContactField.textContent();
     const contactName = fullContactNameField.split(' - ')[0];
 
-    this.ticket.name = contactName;
+    this.ticket.author = contactName;
 
     return contactName;
+  }
+
+  async getCustomContactName() {
+    const fullContactNameField =
+      await this.newTicketFormContactField.textContent();
+    const contactName = fullContactNameField.split(' - ')[0];
+    const contactEmail = fullContactNameField.split(' - ')[1];
+
+    this.ticket.author = contactName;
+    this.ticket.email = contactEmail;
+
+    return contactName;
+  }
+
+  async setContactName(customName) {
+    this.ticket.user = customName;
+
+    return this.ticket.user;
+  }
+
+  async setContactEmail(customEmail) {
+    this.ticket.email = customEmail;
+
+    return this.ticket.email;
+  }
+
+  async setStaffEmail(customEmail) {
+    this.ticket.staffEmail = customEmail;
+
+    return this.ticket.staffEmail;
+  }
+
+  async ReadConsumerContacts(role) {
+    this.ticket.name = role.user;
+    this.ticket.email = role.email;
   }
 
   async getRandomOptionName(optionsLocator, modifier) {
@@ -111,11 +148,7 @@ class NewTicketPage {
 
   // eslint-disable-next-line class-methods-use-this
   async searchInOptions(fieldLocator, option) {
-    // const optionName = await this.getRandomOptionName(
-    //   await optionsLocator,
-    //   modifier,
-    // );
-    await fieldLocator.type(option, { delay: 20 });
+    await fieldLocator.type(option); // add { delay: 20 } to slow type
 
     return option;
   }
@@ -145,29 +178,43 @@ class NewTicketPage {
       fieldLocator,
       customOptionName,
     );
-    const optionSelectorFromSearchList = `li[role="option"]:has-text('${optionName}')`;
+    const optionSelectorFromSearchList = `li[role="option"]`;
     const optionNameFromSearchList = this.page
       .locator(optionSelectorFromSearchList)
+      .filter({ hasText: customOptionName })
       .first();
 
-    await expect(optionNameFromSearchList).toHaveText(optionName);
+    await expect(optionNameFromSearchList).toContainText(optionName);
     await optionNameFromSearchList.click();
 
     return optionName;
   }
 
-  async FillContactField(name) {
-    if (name) {
-      await this.selectCustomOption(this.newTicketFormContactSearchField, name);
-    }
-    this.getContactName();
+  async ReadContactField() {
+    await this.getContactName();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async getUniqTicketId() {
+    const uniqId = await uid(10);
+
+    return uniqId;
+  }
+
+  async FillCustomContactField(name) {
+    this.newTicketFormContactField.click();
+    await this.selectCustomOption(this.newTicketFormContactSearchField, name);
+
+    await this.getCustomContactName();
   }
 
   async FillSubjectField() {
-    const subjectText = `New ticket ${Date()}`;
+    const id = await this.getUniqTicketId();
+    const subjectText = `TEST! New ticket ${id} ${Date()}`;
     await this.newTicketFormSubjectField.click();
     await this.newTicketFormSubjectField.fill(subjectText);
 
+    this.ticket.uid = id;
     this.ticket.subject = subjectText;
   }
 
@@ -181,22 +228,57 @@ class NewTicketPage {
     );
   }
 
-  async SelectTopic() {
-    await this.newTicketFormTopicField.click();
-    await this.newTicketFormSearchPTopicField.click();
-    this.ticket.topic = await this.selectRandomOption(
-      this.newTicketFormSearchPTopicField,
-      this.newTicketFormOptions,
+  async SelectCustomProduct(customProduct) {
+    await this.newTicketFormProductField.click();
+    await this.newTicketFormSearchProductField.click();
+    this.ticket.product = await this.selectCustomOption(
+      this.newTicketFormSearchProductField,
+      customProduct,
     );
+
+    if (this.ticket.product === '--') {
+      this.ticket.product = '';
+    }
   }
 
-  async SelectUser() {
+  async SelectTopic() {
+    await this.page.waitForTimeout(2000);
+    await this.newTicketFormTopicField.click();
+    await this.newTicketFormSearchPTopicField.click();
+    await (this.ticket.topic = await this.selectRandomOption(
+      this.newTicketFormSearchPTopicField,
+      this.newTicketFormOptions,
+      1,
+    ));
+  }
+
+  async SelectCustomTopic(customTopic) {
+    await Promise.all([
+      await this.newTicketFormTopicField.click(),
+      await this.newTicketFormSearchPTopicField.click(),
+      await (this.ticket.topic = await this.selectCustomOption(
+        this.newTicketFormSearchPTopicField,
+        customTopic,
+      )),
+    ]);
+  }
+
+  async SelectRandomUser() {
     await this.newTicketFormAssignedField.click();
     await this.newTicketFormSearchAssignedField.click();
-    this.ticket.user = await this.selectRandomOption(
+    this.ticket.name = await this.selectRandomOption(
       this.newTicketFormSearchAssignedField,
       this.newTicketFormOptions,
       1,
+    );
+  }
+
+  async SelectCustomUser(user) {
+    await this.newTicketFormAssignedField.click();
+    await this.newTicketFormSearchAssignedField.click();
+    this.ticket.name = await this.selectCustomOption(
+      this.newTicketFormSearchAssignedField,
+      user,
     );
   }
 
@@ -225,42 +307,113 @@ class NewTicketPage {
   async FillDescriptionField() {
     await this.newTicketFormDescriptionField.click();
     const descriptionText =
-      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. A itaque quisquam optio laboriosam illo? Impedit sed numquam eos optio saepe aut laudantium dolorem voluptatem minus, ducimus animi voluptate magni voluptatum odit quisquam enim earum reiciendis officia similique vitae quibusdam? Molestias rem itaque laboriosam architecto labore voluptas atque, tempora magni eum?';
+      'TEST TICKET Lorem, ipsum dolor sit amet consectetur adipisicing elit. A itaque quisquam optio laboriosam illo? Impedit sed numquam eos optio saepe aut laudantium dolorem voluptatem minus, ducimus animi voluptate magni voluptatum odit quisquam enim earum reiciendis officia similique vitae quibusdam? Molestias rem itaque laboriosam architecto labore voluptas atque, tempora magni eum?';
 
     await this.newTicketFormDescriptionField.fill(descriptionText);
 
     this.ticket.description = descriptionText;
   }
 
-  async UploadFiles() {
-    await this.newTicketFormFilesUpload.setInputFiles(
-      [
-        '../../../FilesToUpload/man.png',
-        // '../../../FilesToUpload/CycleStreetsMobileAppSpecification.pdf',
-        // '../../../FilesToUpload/test-data-file.xlsx',
-      ],
-      { timeout: 5000 },
+  async UploadFiles(amount = 3) {
+    const filesForUpload = [
+      '../../../FilesToUpload/man.png',
+      '../../../FilesToUpload/CycleStreetsMobileAppSpecification.pdf',
+      '../../../FilesToUpload/test-data-file.xlsx',
+    ];
+
+    const modifier = filesForUpload.length - amount;
+
+    const filesToUpload = [];
+
+    for (let i = 0; i < filesForUpload.length - modifier; i += 1) {
+      filesToUpload.push(filesForUpload[i]);
+    }
+
+    await Promise.all([
+      await this.newTicketFormFilesUpload.setInputFiles(filesToUpload, {
+        timeout: 3000,
+      }),
+      await this.page.waitForTimeout(4000),
+    ]);
+
+    const attachmentsList = filesToUpload.map(item =>
+      item.replace('../../../FilesToUpload/', ''),
     );
 
-    this.ticket.attachments = ['man.png'];
-    await this.page.waitForTimeout(5000);
+    this.ticket.attachments = attachmentsList;
   }
 
   async SaveNewTicket() {
     await Promise.all([
       await this.newTicketFormSaveButton.click(),
-      this.page.waitForNavigation(/* { url: 'https://test-kb.coworkplace.us/tickets/' } */),
+      await this.page.waitForTimeout(85),
+      // await this.page.goto('https://test-kb.coworkplace.us/tickets'),
+      await this.page.waitForNavigation(/* 'https://test-kb.coworkplace.us/tickets' */),
     ]);
 
     return this.ticket;
   }
 
-  async fillNewTicketForm() {
-    await this.FillContactField();
+  async fillNewTicketForm(role) {
+    switch (role.name) {
+      case 'OWNER':
+        await this.fillNewTicketFormAsOwner();
+        break;
+
+      case 'STAFF':
+        await this.fillNewTicketFormAsStaff();
+        break;
+
+      case 'CONSUMER':
+        await this.fillNewTicketFormAsConsumer(role);
+        break;
+
+      default:
+        // eslint-disable-next-line no-console
+        console.log('Invalid role name');
+    }
+  }
+
+  async fillNewTicketFormAsOwner() {
+    await this.ReadContactField();
     await this.FillSubjectField();
     await this.SelectProduct();
     await this.SelectTopic();
-    await this.SelectUser();
+    await this.SelectRandomUser();
+    await this.SelectPriorityOption();
+    await this.SelectTypeOption();
+    await this.FillDescriptionField();
+    await this.UploadFiles(2);
+  }
+
+  async fillNewTicketFormAsStaff() {
+    await this.ReadContactField();
+    await this.FillSubjectField();
+    await this.SelectProduct();
+    await this.SelectTopic();
+    await this.SelectRandomUser();
+    await this.SelectPriorityOption();
+    await this.SelectTypeOption();
+    await this.FillDescriptionField();
+    await this.UploadFiles();
+  }
+
+  async fillNewTicketFormAsConsumer(role) {
+    await this.ReadConsumerContacts(role);
+    await this.FillSubjectField();
+    await this.SelectProduct();
+    await this.SelectTopic();
+    await this.SelectPriorityOption();
+    await this.SelectTypeOption();
+    await this.FillDescriptionField();
+    await this.UploadFiles();
+  }
+
+  async fillNewTicketFormAsOwnerBehalfStaff() {
+    await this.FillCustomContactField('Test Testeroff');
+    await this.FillSubjectField();
+    await this.SelectCustomProduct('test product2');
+    await this.SelectCustomUser('None');
     await this.SelectPriorityOption();
     await this.SelectTypeOption();
     await this.FillDescriptionField();
