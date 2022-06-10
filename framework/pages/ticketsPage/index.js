@@ -1,4 +1,8 @@
-const { ADD_NEW_BUTTON, ADD_NEW_TICKET_BUTTON } = require('../../constants');
+const {
+  ADD_NEW_BUTTON,
+  ADD_NEW_TICKET_BUTTON,
+  COWORK_URL,
+} = require('../../constants');
 
 class TicketsPage {
   /**
@@ -9,6 +13,10 @@ class TicketsPage {
     this.page = page;
     this.addNewButton = this.page.locator(ADD_NEW_BUTTON);
     this.addNewTicketButton = this.page.locator(ADD_NEW_TICKET_BUTTON);
+  }
+
+  async goto() {
+    await this.page.goto(`${COWORK_URL}tickets`);
   }
 
   async openFormAddNewTicket() {
