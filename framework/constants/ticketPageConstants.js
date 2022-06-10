@@ -10,7 +10,8 @@ const TICKET_CREATED_WITH_ASSIGNED_TO =
   '#select2-ticket_assigned_user_menu-container';
 const TICKET_CREATED_SHOW_ATTACH_BUTTON =
   'button[data-original-title="Attachments"]';
-const TICKET_CREATED_WITH_ATTACH = '.dropdown-file__name';
+const TICKET_CREATED_WITH_ATTACH = 'span.dropdown-file__name';
+const TICKET_CREATED_WITH_ID = '#ticket_number';
 
 module.exports = {
   TICKET_SUBJECT,
@@ -23,4 +24,5 @@ module.exports = {
   TICKET_CREATED_WITH_ASSIGNED_TO,
   TICKET_CREATED_SHOW_ATTACH_BUTTON,
   TICKET_CREATED_WITH_ATTACH,
+  TICKET_CREATED_WITH_ID,
 };
