@@ -28,6 +28,7 @@ package-lock.json
 /playwright-report
 /playwright/.cache/
 /test-results
+/testCredentials
 
 # misc
 .vscode
