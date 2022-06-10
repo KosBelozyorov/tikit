@@ -12,6 +12,7 @@ const TICKET_CREATED_SHOW_ATTACH_BUTTON =
   'button[data-original-title="Attachments"]';
 const TICKET_CREATED_WITH_ATTACH = 'span.dropdown-file__name';
 const TICKET_CREATED_WITH_ID = '#ticket_number';
+const { EMAIL_FROM, BASE_SYSTEM_URL } = process.env;
 
 module.exports = {
   TICKET_SUBJECT,
@@ -25,4 +26,6 @@ module.exports = {
   TICKET_CREATED_SHOW_ATTACH_BUTTON,
   TICKET_CREATED_WITH_ATTACH,
   TICKET_CREATED_WITH_ID,
+  EMAIL_FROM,
+  BASE_SYSTEM_URL,
 };
