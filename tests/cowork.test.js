@@ -1,26 +1,33 @@
 const { test } = require('../framework/fixtures');
+const { OWNER, STAFF, CONSUMER } = require('../framework/constants');
+
+const roles = [OWNER, STAFF, CONSUMER];
 
 test.beforeEach(async ({ loginPage }) => {
   await loginPage.goto();
 });
 
-test.describe.parallel('Owner tests', () => {
-  test('Case #01 Login as owner', async ({ loginPage }) => {
-    await loginPage.loginAsOwner();
-  });
-  test('Case #02 Add new ticket as owner', async ({
-    loginPage,
-    ticketsPage,
-    ticketPage,
-    newTicketPage,
-  }) => {
-    // test.slow(); // for slow test uncomment this line
-    await loginPage.loginAsOwner();
-    await ticketsPage.openFormAddNewTicket();
-    await newTicketPage.fillNewTicketForm();
+test.describe.parallel('Tests by owner, staff, consumer', () => {
+  for (const role of roles) {
+    test(`Case #01 Login as ${role.name} and logout`, async ({ loginPage }) => {
+      await loginPage.loginAs(role);
+      await loginPage.logout();
+    });
 
-    const myObject = await newTicketPage.SaveNewTicket();
+    test(`Case #02 Add new ticket as ${role.name}`, async ({
+      loginPage,
+      ticketsPage,
+      ticketPage,
+      newTicketPage,
+    }) => {
+      test.slow(); // for slow test uncomment this line
+      await loginPage.loginAs(role);
+      await ticketsPage.openFormAddNewTicket();
+      await newTicketPage.fillNewTicketForm(role);
 
-    await ticketPage.checkCreatedTicketInfo(await myObject);
-  });
+      const createdTicket = await newTicketPage.SaveNewTicket();
+
+      await ticketPage.checkCreatedTicketInfoByRole(await createdTicket, role);
+    });
+  }
 });
