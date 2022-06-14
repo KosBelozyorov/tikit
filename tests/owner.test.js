@@ -35,7 +35,7 @@ test.describe.parallel('Tests by OWNER', () => {
 
     const createdTicket = await newTicketPage.SaveNewTicket();
 
-    await ticketPage.checkEmailForCreatedTicket(createdTicket, 'OWNER');
+    await ticketPage.checkNoEmailForCreatedTicket(createdTicket);
   });
 
   test('Case #03 Add new ticket, no product with assignee', async ({
@@ -116,7 +116,7 @@ test.describe.parallel('Tests by OWNER', () => {
 
     const createdTicket = await newTicketPage.SaveNewTicket();
 
-    await ticketPage.checkEmailForCreatedTicket(createdTicket, 'OWNER');
+    await ticketPage.checkNoEmailForCreatedTicket(createdTicket);
   });
 
   test('Case #07 Add new ticket, with product and assignee to STAFF', async ({
@@ -138,7 +138,7 @@ test.describe.parallel('Tests by OWNER', () => {
     await ticketPage.checkEmailForCreatedTicket(createdTicket, 'OWNER');
   });
 
-  test('Case #08 Add new ticket behalf staff', async ({
+  test('Case #08 Add new ticket behalf staff no product, no assignee', async ({
     ticketsPage,
     ticketPage,
     newTicketPage,
@@ -147,10 +147,7 @@ test.describe.parallel('Tests by OWNER', () => {
     await ticketsPage.openFormAddNewTicket();
     await newTicketPage.FillCustomContactField('test staff');
     await newTicketPage.FillSubjectField();
-    await newTicketPage.SelectCustomProduct('test product');
-    await newTicketPage.SelectCustomTopic('Test topic');
-    await newTicketPage.SelectCustomUser('test staff');
-    await newTicketPage.setContactEmail('belozerov_kos@ukr.net');
+    await newTicketPage.setContactName('test staff');
     await newTicketPage.FillDescriptionField();
 
     const createdTicket = await newTicketPage.SaveNewTicket();
@@ -158,7 +155,45 @@ test.describe.parallel('Tests by OWNER', () => {
     await ticketPage.checkEmailForCreatedTicket(createdTicket, 'OWNER');
   });
 
-  test('Case #09 Add new ticket behalf consumer no product, no assignee', async ({
+  test('Case #09 Add new ticket behalf staff no product, with assignee', async ({
+    ticketsPage,
+    ticketPage,
+    newTicketPage,
+  }) => {
+    test.slow(); // for slow test uncomment this line
+    await ticketsPage.openFormAddNewTicket();
+    await newTicketPage.FillCustomContactField('test staff');
+    await newTicketPage.FillSubjectField();
+    await newTicketPage.SelectCustomUser('Test Testeroff');
+    await newTicketPage.setContactName('test staff');
+    await newTicketPage.setStaffEmail('kos.aqa.kos@gmail.com');
+    await newTicketPage.FillDescriptionField();
+
+    const createdTicket = await newTicketPage.SaveNewTicket();
+
+    await ticketPage.checkEmailForCreatedTicket(createdTicket, 'AS_STAFF');
+  });
+
+  test('Case #10 Add new ticket behalf staff with product, no assignee', async ({
+    ticketsPage,
+    ticketPage,
+    newTicketPage,
+  }) => {
+    test.slow(); // for slow test uncomment this line
+    await ticketsPage.openFormAddNewTicket();
+    await newTicketPage.FillCustomContactField('test staff');
+    await newTicketPage.FillSubjectField();
+    await newTicketPage.SelectCustomProduct('test product2');
+    await newTicketPage.setContactName('Test Testeroff');
+    await newTicketPage.setStaffEmail('kos.aqa.kos@gmail.com');
+    await newTicketPage.FillDescriptionField();
+
+    const createdTicket = await newTicketPage.SaveNewTicket();
+
+    await ticketPage.checkEmailForCreatedTicket(createdTicket, 'AS_STAFF');
+  });
+
+  test('Case #11 Add new ticket behalf consumer no product, no assignee', async ({
     ticketsPage,
     ticketPage,
     newTicketPage,
@@ -175,44 +210,41 @@ test.describe.parallel('Tests by OWNER', () => {
     await ticketPage.checkEmailForCreatedTicket(createdTicket, 'CONSUMER');
   });
 
-  // test('Case #10 Add new ticket behalf consumer no product, with assignee', async ({
-  //   ticketsPage,
-  //   ticketPage,
-  //   newTicketPage,
-  // }) => {
-  //   test.slow(); // for slow test uncomment this line
-  //   await ticketsPage.openFormAddNewTicket();
-  //   await newTicketPage.FillCustomContactField('User Consumer');
-  //   await newTicketPage.FillSubjectField();
-  //   await newTicketPage.SelectCustomUser('test staff');
-  //   await newTicketPage.setContactName('User Consumer');
-  //   await newTicketPage.setStaffEmail('belozerov_kos@ukr.net');
-  //   await newTicketPage.FillDescriptionField();
-  //   await newTicketPage.UploadFiles(1);
+  test('Case #12 Add new ticket behalf consumer no product, with assignee', async ({
+    ticketsPage,
+    ticketPage,
+    newTicketPage,
+  }) => {
+    test.slow(); // for slow test uncomment this line
+    await ticketsPage.openFormAddNewTicket();
+    await newTicketPage.FillCustomContactField('User Consumer');
+    await newTicketPage.FillSubjectField();
+    await newTicketPage.SelectCustomUser('test staff');
+    await newTicketPage.setContactName('User Consumer');
+    await newTicketPage.setStaffEmail('belozerov_kos@ukr.net');
+    await newTicketPage.FillDescriptionField();
 
-  //   const createdTicket = await newTicketPage.SaveNewTicket();
+    const createdTicket = await newTicketPage.SaveNewTicket();
 
-  //   await ticketPage.checkEmailForCreatedTicket(createdTicket, 'AS_CONSUMER');
-  // });
+    await ticketPage.checkEmailForCreatedTicket(createdTicket, 'AS_CONSUMER');
+  });
 
-  // test('Case #11 Add new ticket behalf consumer with product, no assignee', async ({
-  //   ticketsPage,
-  //   ticketPage,
-  //   newTicketPage,
-  // }) => {
-  //   test.slow(); // for slow test uncomment this line
-  //   await ticketsPage.openFormAddNewTicket();
-  //   await newTicketPage.FillCustomContactField('User Consumer');
-  //   await newTicketPage.FillSubjectField();
-  //   await newTicketPage.SelectCustomProduct('test product');
-  //   // await newTicketPage.SelectCustomTopic('Test topic');
-  //   // await newTicketPage.SelectCustomUser('test staff');
-  //   await newTicketPage.setContactName('User Consumer');
-  //   await newTicketPage.FillDescriptionField();
-  //   await newTicketPage.UploadFiles(2);
+  test('Case #13 Add new ticket behalf consumer with product, no assignee', async ({
+    ticketsPage,
+    ticketPage,
+    newTicketPage,
+  }) => {
+    test.slow(); // for slow test uncomment this line
+    await ticketsPage.openFormAddNewTicket();
+    await newTicketPage.FillCustomContactField('User Consumer');
+    await newTicketPage.FillSubjectField();
+    await newTicketPage.SelectCustomProduct('test product');
+    await newTicketPage.setContactName('test staff');
+    await newTicketPage.setStaffEmail('belozerov_kos@ukr.net');
+    await newTicketPage.FillDescriptionField();
 
-  //   const createdTicket = await newTicketPage.SaveNewTicket();
+    const createdTicket = await newTicketPage.SaveNewTicket();
 
-  //   await ticketPage.checkEmailForCreatedTicket(createdTicket, 'consumer');
-  // });
+    await ticketPage.checkEmailForCreatedTicket(createdTicket, 'AS_CONSUMER');
+  });
 });

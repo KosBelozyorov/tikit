@@ -199,8 +199,6 @@ class TicketPage {
   // eslint-disable-next-line class-methods-use-this
   async getAttachmentsFrom(email) {
     const emailAttachments = await email.attachments;
-    // eslint-disable-next-line no-console
-    console.log('email attach: ', emailAttachments);
     const attachmentsList = emailAttachments.map(item => item.name);
 
     return attachmentsList;
@@ -223,14 +221,33 @@ class TicketPage {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async checkName(obj) {
+  async checkName(obj, role) {
     if (obj.name === 'None' && obj.user) {
       return obj.user;
     }
 
     // eslint-disable-next-line no-prototype-builtins
-    if (!obj.hasOwnProperty('name')) {
+    if (!obj.hasOwnProperty('name') && !obj.hasOwnProperty('staffEmail')) {
       return obj.author;
+    }
+
+    // eslint-disable-next-line no-prototype-builtins
+    if (
+      obj.user === 'test staff' &&
+      obj.product === 'test product' &&
+      role === 'OWNER' &&
+      obj.author === 'User Consumer'
+    ) {
+      return obj.user;
+    }
+
+    if (
+      obj.user === 'test staff' &&
+      obj.product === 'test product2' &&
+      role === 'OWNER' &&
+      obj.author === 'test staff'
+    ) {
+      return obj.user;
     }
 
     return obj.name;
@@ -267,8 +284,31 @@ class TicketPage {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async checkEmailTo(ticket, email) {
-    const expectedEmailTo = ticket.email;
+  async checkEmailTo(ticket, email, role = '') {
+    let expectedEmailTo;
+
+    if (
+      // eslint-disable-next-line no-prototype-builtins
+      ticket.hasOwnProperty('staffEmail') &&
+      role === 'OWNER'
+    ) {
+      expectedEmailTo = ticket.staffEmail;
+      // eslint-disable-next-line no-console
+      console.log('expectedEmailTo: ', expectedEmailTo);
+    } else if (
+      // eslint-disable-next-line no-prototype-builtins
+      ticket.hasOwnProperty('staffEmail') &&
+      role === 'STAFF'
+    ) {
+      expectedEmailTo = ticket.staffEmail;
+      // eslint-disable-next-line no-console
+      console.log('expectedEmailTo: ', expectedEmailTo);
+    } else {
+      expectedEmailTo = ticket.email;
+      // eslint-disable-next-line no-console
+      console.log('else expectedEmailTo: ', expectedEmailTo);
+    }
+
     const emailTo = email.to;
 
     expect.soft(emailTo).toEqual(expectedEmailTo);
@@ -282,8 +322,8 @@ class TicketPage {
     expect.soft(emailSubject).toEqual(expectedEmailSubject);
   }
 
-  async checkEmailHeader(ticket, emailBody) {
-    const expectedTicketName = await this.checkName(ticket);
+  async checkEmailHeader(ticket, emailBody, role = '') {
+    const expectedTicketName = await this.checkName(ticket, role);
     const expectedMailContentHeader = `Dear ${expectedTicketName}`;
 
     expect.soft(emailBody.includes(expectedMailContentHeader)).toBeTruthy();
@@ -296,6 +336,26 @@ class TicketPage {
 
     expect
       .soft(emailBody.includes(expectedMailContentHeaderForConsumer))
+      .toBeTruthy();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async checkEmailHeaderForStaff(ticket, emailBody) {
+    const expectedTicketAuthor = ticket.name || ticket.user;
+    const expectedMailContentHeaderForStaff = `Dear ${expectedTicketAuthor}`;
+
+    expect
+      .soft(emailBody.includes(expectedMailContentHeaderForStaff))
+      .toBeTruthy();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async checkEmailHeaderAsStaff(ticket, emailBody) {
+    const expectedTicketAuthor = ticket.author;
+    const expectedMailContentHeaderAsStaff = `Dear ${expectedTicketAuthor}`;
+
+    expect
+      .soft(emailBody.includes(expectedMailContentHeaderAsStaff))
       .toBeTruthy();
   }
 
@@ -375,8 +435,8 @@ class TicketPage {
       case 'OWNER':
         await this.checkEmailFrom(email);
         await this.checkEmailSubject(email);
-        await this.checkEmailTo(createdTicket, email);
-        await this.checkEmailHeader(createdTicket, emailBody);
+        await this.checkEmailTo(createdTicket, email, role);
+        await this.checkEmailHeader(createdTicket, emailBody, role);
         await this.checkEmailHeaderText(createdTicket, emailBody);
         await this.checkEmailLogoLink(emailBody);
         await this.checkEmailHeaderTicketLink(createdTicket, emailBody);
@@ -402,6 +462,52 @@ class TicketPage {
         await this.checkEmailAttachments(createdTicket, email);
         // eslint-disable-next-line no-console
         console.log('OWNER_WITH_ATTACH');
+        break;
+      case 'STAFF':
+        await this.checkEmailFrom(email);
+        await this.checkEmailSubject(email);
+        await this.checkEmailTo(createdTicket, email, role);
+        await this.checkEmailHeaderForStaff(createdTicket, emailBody, role);
+        await this.checkEmailHeaderText(createdTicket, emailBody);
+        await this.checkEmailLogoLink(emailBody);
+        await this.checkEmailHeaderTicketLink(createdTicket, emailBody);
+        await this.checkEmailDescription(createdTicket, emailBody);
+        await this.checkEmailDescriptionTicketLink(ticket, emailBody);
+        await this.checkIdForEmailReplay(ticket, emailBody);
+        await this.checkEmailHelpLink(emailBody);
+        // eslint-disable-next-line no-console
+        console.log('STAFF');
+        break;
+      case 'STAFF_WITH_ATTACH':
+        await this.checkEmailFrom(email);
+        await this.checkEmailSubject(email);
+        await this.checkEmailTo(createdTicket, email);
+        await this.checkEmailHeaderForStaff(createdTicket, emailBody);
+        await this.checkEmailHeaderText(createdTicket, emailBody);
+        await this.checkEmailLogoLink(emailBody);
+        await this.checkEmailHeaderTicketLink(createdTicket, emailBody);
+        await this.checkEmailDescription(createdTicket, emailBody);
+        await this.checkEmailDescriptionTicketLink(ticket, emailBody);
+        await this.checkIdForEmailReplay(ticket, emailBody);
+        await this.checkEmailHelpLink(emailBody);
+        await this.checkEmailAttachments(createdTicket, email);
+        // eslint-disable-next-line no-console
+        console.log('STAFF_WITH_ATTACH');
+        break;
+      case 'AS_STAFF':
+        await this.checkEmailFrom(email);
+        await this.checkEmailSubject(email);
+        await this.checkEmailTo(createdTicket, email, role);
+        await this.checkEmailHeaderAsStaff(createdTicket, emailBody, role);
+        await this.checkEmailHeaderText(createdTicket, emailBody);
+        await this.checkEmailLogoLink(emailBody);
+        await this.checkEmailHeaderTicketLink(createdTicket, emailBody);
+        await this.checkEmailDescription(createdTicket, emailBody);
+        await this.checkEmailDescriptionTicketLink(ticket, emailBody);
+        await this.checkIdForEmailReplay(ticket, emailBody);
+        await this.checkEmailHelpLink(emailBody);
+        // eslint-disable-next-line no-console
+        console.log('STAFF');
         break;
       case 'CONSUMER':
         await this.checkEmailFrom(email);
@@ -496,28 +602,41 @@ class TicketPage {
 
   async checkEmailForCreatedTicket(ticket, role) {
     await this.checkTicketUrl(ticket);
-    const emails = (await this.getEmails(ticket)).items;
+    const getEmails = await this.getEmails(ticket);
+    const emails = getEmails.items;
+    // eslint-disable-next-line no-console
+    console.log('emails length: ', emails.length);
 
-    if (emails.length > 1 && role === 'AS_CONSUMER') {
-      // const consumerEmail = emails.filter(item => item.to === ticket.email);
+    expect.soft(emails.length > 0, 'Emails should be more than 0').toBeTruthy();
 
-      const consumerEmail = {};
-      consumerEmail.items = emails.filter(
-        item => item.to === 'test_belkos@ukr.net',
-      );
+    if (role === 'AS_CONSUMER') {
+      for await (const email of emails) {
+        if (email.to === 'test_belkos@ukr.net') {
+          await this.checkEmailContent(ticket, email, 'CONSUMER');
+        }
 
-      // eslint-disable-next-line no-console
-      // console.log('consumerEmail.to: ', consumerEmail.items);
-      await this.checkEmailContent(ticket, consumerEmail.items[0], 'CONSUMER');
+        if (email.to === 'belozerov_kos@ukr.net') {
+          await this.checkEmailContent(ticket, email, 'OWNER');
+        }
+      }
+    } else if (role === 'AS_STAFF') {
+      for await (const email of emails) {
+        if (email.to === 'kos.aqa.kos@gmail.com') {
+          // eslint-disable-next-line no-console
+          console.log('email.to STAFF: ', email.to);
+          await this.checkEmailContent(ticket, email, 'STAFF');
+        }
 
-      const staffEmail = {
-        ...emails.filter(item => item.to === ticket.staffEmail)[0],
-      };
-      await this.checkEmailContent(ticket, staffEmail, 'OWNER');
-    }
-
-    for (const email of emails) {
-      this.checkEmailContent(ticket, email, role);
+        if (email.to === 'belozerov_kos@ukr.net') {
+          // eslint-disable-next-line no-console
+          console.log('email.to OWNER: ', email.to);
+          await this.checkEmailContent(ticket, email, 'AS_STAFF');
+        }
+      }
+    } else {
+      for (const email of emails) {
+        this.checkEmailContent(ticket, email, role);
+      }
     }
   }
 
