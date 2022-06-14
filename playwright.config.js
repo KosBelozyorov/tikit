@@ -12,10 +12,12 @@ require('dotenv').config();
  * @type {import('@playwright/test').PlaywrightTestConfig}
  */
 const config = {
+  fullyParallel: true,
+  globalSetup: require.resolve('./global-setup'),
   testDir: './tests/',
   // testMatch: ['/tests/**/*.test.js'],
   /* Maximum time one test can run for. */
-  timeout: 40 * 1000,
+  timeout: 50 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -29,7 +31,7 @@ const config = {
   retries: process.env.CI ? 2 : 0,
   // repeatEach: 6,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['list'],
@@ -45,6 +47,7 @@ const config = {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on',
+    screenshot: 'on',
     // headless: false,
     // video: 'retain-on-failure',
   },
