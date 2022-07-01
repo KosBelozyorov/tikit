@@ -17,6 +17,9 @@ const {
   NEW_TICKET_FORM_DESCRIPTION_FIELD,
   NEW_TICKET_FORM_FILES_UPLOAD,
   NEW_TICKET_FORM_SAVE_BUTTON,
+  CONSUMER,
+  OWNER,
+  STAFF,
 } = require('../../constants');
 
 class NewTicketPage {
@@ -118,10 +121,33 @@ class NewTicketPage {
     return this.ticket.user;
   }
 
+  async setAuthor(role) {
+    this.ticket.author = role.user;
+    this.ticket.email = role.email;
+  }
+
   async setContactEmail(customEmail) {
     this.ticket.email = customEmail;
 
     return this.ticket.email;
+  }
+
+  async setOwnerName(customName) {
+    this.ticket.ownerName = customName;
+
+    return this.ticket.ownerName;
+  }
+
+  async setOwnerEmail(customEmail) {
+    this.ticket.ownerEmail = customEmail;
+
+    return this.ticket.ownerEmail;
+  }
+
+  async setStaffName(customName) {
+    this.ticket.staffName = customName;
+
+    return this.ticket.staffName;
   }
 
   async setStaffEmail(customEmail) {
@@ -218,7 +244,7 @@ class NewTicketPage {
     this.ticket.subject = subjectText;
   }
 
-  async SelectProduct() {
+  async SelectRandomProduct() {
     await this.newTicketFormProductField.click();
     await this.newTicketFormSearchProductField.click();
     this.ticket.product = await this.selectRandomOption(
@@ -282,7 +308,7 @@ class NewTicketPage {
     );
   }
 
-  async SelectPriorityOption() {
+  async SelectRandomPriorityOption() {
     await this.newTicketFormPriorityField.click();
     const elementId = this.getRandomValue(this.newTicketFormOptions);
     const elementLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await elementId})`;
@@ -294,7 +320,7 @@ class NewTicketPage {
     await this.page.locator(elementLocator).click();
   }
 
-  async SelectTypeOption() {
+  async SelectRandomTypeOption() {
     await this.newTicketFormTypeField.click();
     const elementId = this.getRandomValue(this.newTicketFormOptions);
     const elementLocator = `${NEW_TICKET_FORM_FIELD_OPTIONS}:nth-child(${await elementId})`;
@@ -318,6 +344,7 @@ class NewTicketPage {
     const filesForUpload = [
       '../../../FilesToUpload/man.png',
       '../../../FilesToUpload/CycleStreetsMobileAppSpecification.pdf',
+      '../../../FilesToUpload/test.txt',
       '../../../FilesToUpload/test-data-file.xlsx',
     ];
 
@@ -329,12 +356,19 @@ class NewTicketPage {
       filesToUpload.push(filesForUpload[i]);
     }
 
-    await Promise.all([
-      await this.newTicketFormFilesUpload.setInputFiles(filesToUpload, {
-        timeout: 3000,
-      }),
-      await this.page.waitForTimeout(4000),
-    ]);
+    // eslint-disable-next-line no-console
+    console.log('files to upload: ', filesToUpload);
+
+    // await Promise.all([
+    //   await this.newTicketFormFilesUpload.setInputFiles(filesToUpload, {
+    //     timeout: 3000,
+    //   }),
+    //   await this.page.waitForTimeout(6000),
+    // ]);
+
+    await this.newTicketFormFilesUpload.setInputFiles(filesToUpload, {
+      timeout: 3000,
+    });
 
     const attachmentsList = filesToUpload.map(item =>
       item.replace('../../../FilesToUpload/', ''),
@@ -375,38 +409,38 @@ class NewTicketPage {
   }
 
   async fillNewTicketFormAsOwner() {
-    await this.ReadContactField();
+    await this.setAuthor(OWNER);
     await this.FillSubjectField();
-    await this.SelectProduct();
+    await this.SelectRandomProduct();
     await this.SelectTopic();
     await this.SelectRandomUser();
-    await this.SelectPriorityOption();
-    await this.SelectTypeOption();
+    await this.SelectRandomPriorityOption();
+    await this.SelectRandomTypeOption();
     await this.FillDescriptionField();
-    await this.UploadFiles(2);
+    await this.UploadFiles(1);
   }
 
   async fillNewTicketFormAsStaff() {
-    await this.ReadContactField();
+    await this.setAuthor(STAFF);
     await this.FillSubjectField();
-    await this.SelectProduct();
+    await this.SelectRandomProduct();
     await this.SelectTopic();
     await this.SelectRandomUser();
-    await this.SelectPriorityOption();
-    await this.SelectTypeOption();
+    await this.SelectRandomPriorityOption();
+    await this.SelectRandomTypeOption();
     await this.FillDescriptionField();
-    await this.UploadFiles();
+    await this.UploadFiles(1);
   }
 
-  async fillNewTicketFormAsConsumer(role) {
-    await this.ReadConsumerContacts(role);
+  async fillNewTicketFormAsConsumer() {
+    await this.setAuthor(CONSUMER);
     await this.FillSubjectField();
-    await this.SelectProduct();
+    await this.SelectRandomProduct();
     await this.SelectTopic();
-    await this.SelectPriorityOption();
-    await this.SelectTypeOption();
+    await this.SelectRandomPriorityOption();
+    await this.SelectRandomTypeOption();
     await this.FillDescriptionField();
-    await this.UploadFiles();
+    await this.UploadFiles(1);
   }
 
   async fillNewTicketFormAsOwnerBehalfStaff() {
@@ -414,8 +448,8 @@ class NewTicketPage {
     await this.FillSubjectField();
     await this.SelectCustomProduct('test product2');
     await this.SelectCustomUser('None');
-    await this.SelectPriorityOption();
-    await this.SelectTypeOption();
+    await this.SelectRandomPriorityOption();
+    await this.SelectRandomTypeOption();
     await this.FillDescriptionField();
     await this.UploadFiles();
   }

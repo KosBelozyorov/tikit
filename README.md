@@ -22,8 +22,7 @@
 ## Commands
 
 - "npm run test" - this command will start all tests
-- "npx playwright show-report my-report" - will serv and open "Playwright Test
-  Report"
+- "npm run my-report" - will serv and open "Playwright Test Report"
 - "npm run report" - will generate, serv an open Allure Test Report
 
 ## Tips

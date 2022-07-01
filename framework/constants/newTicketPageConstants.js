@@ -28,6 +28,11 @@ const NEW_TICKET_FORM_FILES_UPLOAD = '.input-file__holder input[type="file"]';
 const NEW_TICKET_FORM_SAVE_BUTTON =
   'form#createTicket>div:nth-of-type(9)>button';
 
+// Test products
+const PRODUCT1 = process.env.TEST_PRODUCT1;
+const PRODUCT2 = process.env.TEST_PRODUCT2;
+const PRODUCT3 = process.env.TEST_PRODUCT3;
+
 module.exports = {
   NEW_TICKET_FORM_CONTACT_FIELD,
   NEW_TICKET_FORM_CONTACT_SEARCH_FIELD,
@@ -44,4 +49,7 @@ module.exports = {
   NEW_TICKET_FORM_DESCRIPTION_FIELD,
   NEW_TICKET_FORM_FILES_UPLOAD,
   NEW_TICKET_FORM_SAVE_BUTTON,
+  PRODUCT1,
+  PRODUCT2,
+  PRODUCT3,
 };

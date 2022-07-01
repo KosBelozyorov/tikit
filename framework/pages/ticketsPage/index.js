@@ -21,6 +21,7 @@ class TicketsPage {
 
   async openFormAddNewTicket() {
     await this.addNewButton.click();
+    await this.addNewTicketButton.hover({ position: { x: 1, y: 1 } });
     await this.addNewTicketButton.click();
   }
 }

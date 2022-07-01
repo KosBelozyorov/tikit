@@ -1,0 +1,80 @@
+stages:
+  - test
+  - allure
+  - deploy
+
+.download_history: &download_history
+  after_script:
+    - apt-get install -y unzip
+    - mkdir backup && cd backup || true
+    # - 'curl --location --output report.zip --request GET
+    #   "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/jobs/artifacts/dev/download?job=smoke"
+    #   --header "Authorization: Bearer ${CI_DEPLOY_TOKEN}" || true'
+    # - 'curl --location --output report.zip --header "PRIVATE-TOKEN:
+    #   glpat-KDfZTKi1Rn5vexdWM_2_"
+    #   "https://gitlab.com/api/v4/projects/30393641/jobs/artifacts/dev/download?job=allure_report"'
+    - 'curl --location --output report.zip --header "PRIVATE-TOKEN:
+      ${MY_PRIVATE_TOKEN}"
+      "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/jobs/artifacts/dev/download?job=pages"'
+    - (unzip report.zip) || true
+    - cd ../
+    - (cp -r backup/public/history/ allure-results/) || true
+    - npx allure generate ./allure-results --clean
+
+.test_template: &test_template
+  allow_failure: true
+  stage: test
+  before_script:
+    - npm install
+    - npx playwright install
+    - apt-get update
+    - apt --yes install default-jre
+  script:
+    - npm run test
+  image:
+    name: mcr.microsoft.com/playwright:v1.16.3-focal
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+      - allure-report/
+
+smoke:
+  <<: *test_template
+  <<: *download_history
+
+# allure_report:
+#   stage: allure
+#   when: always
+#   image: timbru31/java-node
+#   dependencies:
+#     - smoke
+#   before_script:
+#     - export
+#   script:
+#     - npm install
+#     - npx allure generate ./allure-results --clean
+#   artifacts:
+#     when: always
+#     paths:
+#       - allure-results/
+#       - allure-report/
+
+pages:
+  stage: deploy
+  when: always
+  dependencies:
+    - smoke
+  script:
+    - mv allure-report/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+
+telegram:
+  stage: deploy
+  script:
+    - sh .notify.sh
+  rules:
+    - when: on_success
