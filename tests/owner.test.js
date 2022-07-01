@@ -1,4 +1,3 @@
-const { InbucketAPIClient } = require('inbucket-js-client');
 const { test } = require('../framework/fixtures');
 const {
   OWNER,
@@ -12,14 +11,6 @@ const {
 
 test.beforeEach(async ({ loginPage }) => {
   await loginPage.goto();
-});
-
-test.afterAll(() => {
-  const emailsBoxes = [OWNER.email, STAFF.email, STAFF1.email, CONSUMER.email];
-  const client = new InbucketAPIClient('http://ran.sysonline.com:9000');
-  for (const box of emailsBoxes) {
-    client.prugeMailbox(box);
-  }
 });
 
 test.describe.parallel('Tests by OWNER', () => {

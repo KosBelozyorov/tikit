@@ -1,13 +1,6 @@
-const { InbucketAPIClient } = require('inbucket-js-client');
 const { test } = require('../framework/fixtures');
 
-const {
-  CONSUMER,
-  OWNER,
-  STAFF,
-  STAFF1,
-  PRODUCT1,
-} = require('../framework/constants');
+const { CONSUMER, OWNER, STAFF1, PRODUCT1 } = require('../framework/constants');
 
 test.beforeEach(async ({ loginPage }) => {
   await loginPage.goto();
